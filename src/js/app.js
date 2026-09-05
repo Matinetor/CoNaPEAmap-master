@@ -487,7 +487,7 @@ const app = {
   argenmapDarkMode: function () {
     this.showLayer("argenmap");
     mapa.getPane("tilePane").firstChild.style =
-      "filter:  invert(1) brightness(1.5) hue-rotate(180deg);";
+      "filter: invert(1) brightness(1.5) hue-rotate(180deg);";
     let stylesui = new StylesUI();
     stylesui.createdarktheme();
     let oldstyle = document.getElementById("main-style-ui");
@@ -524,19 +524,12 @@ function checkFileType(filePath, extension) {
   // check file extension using regex
 }
 
-/**
- * This reads the configuration from two JSON files (app parameters and data references).
- * These files could be customized, if not the function parses and loads
- * default configuration files which are referenced in constats for such usage.
- */
-
 async function getJson(url) {
   try {
     const response = await fetch(url);
     if (!response.ok) {
       let errorMsg = `${response.url.split("/").at(-1)} ${response.statusText.toLowerCase()}`
       new UserMessage(errorMsg, true, "warning");
-      // throw new Error(`Response status: ${response.statusText}`);
     }
     const json = await response.json();
     return json;
@@ -546,12 +539,6 @@ async function getJson(url) {
 }
 
 async function getPreferences(preferencesURL, load = false) {
-  /**
-   * TODO
-   * check file type, URL and JSON syntax
-   * throw error message in UI if configuration parsing fails
-   * process each object with specialized methods
-   */
   let preferences = null;
   if (typeof preferencesURL === "object" && preferencesURL.hasOwnProperty("title")) {
     preferences = preferencesURL;
@@ -565,17 +552,9 @@ async function getPreferences(preferencesURL, load = false) {
     loadTemplate(preferences);
   }
   return preferences;
-  // loadTemplate(preferences);
 }
 
 async function getData(dataURL, load = false) {
-  // getData("./src/config/ign.data.json", true);
-  /**
-   * TODO
-   * check file type, URL and JSON syntax
-   * throw error message in UI if configuration parsing fails
-   * process each object with specialized methods
-   */
   let data = null;
   if (typeof dataURL === "object" && dataURL.hasOwnProperty("items")) {
     data = dataURL;
@@ -586,14 +565,11 @@ async function getData(dataURL, load = false) {
     data = await getJson("src/config/default/data.json");
   }
   if (load) {
-    loadTemplate(data); // moved into getConfig()
+    loadTemplate(data);
   }
   return data;
 }
 
-/**
- * Read preferences and data configuration at application start.
- */
 async function getConfig(preferencesURL, dataURL) {
   try {
     const preferences = await getPreferences(preferencesURL);
@@ -611,37 +587,30 @@ async function loadTemplate(data, isDefaultTemplate) {
   $(document).ready(async function () {
     await app.init(data);
 
-    //Template
-    template = app.template; // define wich template to use
+    template = app.template;
 
     let stylesui = new StylesUI();
     stylesui.createstyles();
-    //Load template config
     loadTemplateStyleConfig(template, isDefaultTemplate);
 
-    delete app["template"]; // delete template item from data
+    delete app["template"];
 
-    //templateFeatureInfoFieldException
     if (app.template_feature_info_exception) {
-      templateFeatureInfoFieldException = app.template_feature_info_exception; // define not showing fields in feature info popup
-      delete app["template_feature_info_exception"]; // delete template item from data
+      templateFeatureInfoFieldException = app.template_feature_info_exception;
+      delete app["template_feature_info_exception"];
     }
 
-    //Layers Joins (join several layers into one item)
     if (app.layers_joins) {
       gestorMenu.setLayersJoin(app.layers_joins);
-      delete app["layers_joins"]; // delete template item from data
+      delete app["layers_joins"];
     }
 
-    //Folders (generate folders items into main menu to generate logical groups of layers)
     if (app.folders) {
       gestorMenu.setFolders(app.folders);
-      delete app["folders"]; // delete folders item from data
+      delete app["folders"];
     }
 
-    //Add Analytics
     if (app.analytics_ids) {
-      // Check to fix a bug with ad blockers
       if (typeof addAnalytics === "function") {
         addAnalytics(app.analytics_ids);
       }
@@ -650,7 +619,6 @@ async function loadTemplate(data, isDefaultTemplate) {
     app.addBasemaps();
     app.addLayers();
 
-    //if charts is active in menu.json
     if (loadCharts && !app.dependencies.d3) {
       $.getScript("https://d3js.org/d3.v5.min.js");
       $.getScript("src/js/components/charts/charts.js");
@@ -660,7 +628,6 @@ async function loadTemplate(data, isDefaultTemplate) {
       app.dependencies.d3 = true;
     }
 
-    //if searchbar is active in menu.json
     if (loadSearchbar && !app.dependencies.searchbar) {
       $.getScript("src/js/components/searchbar/searchbar.js").done(function () {
         var searchBar_ui = new Searchbar_UI();
@@ -672,7 +639,6 @@ async function loadTemplate(data, isDefaultTemplate) {
       app.dependencies.searchbar = true;
     }
 
-    //Load dynamic mapa.js
     app.template_id = template;
     if (!app.dependencies.map) {
       $.getScript(`src/js/map/map.js`, (res) => { });
@@ -681,7 +647,6 @@ async function loadTemplate(data, isDefaultTemplate) {
 
     template = "templates/" + template + "/main.html";
 
-    //Wait until global 'mapa' object is available.
     const intervalID = setInterval(() => {
       if (mapa && mapa.hasOwnProperty("_leaflet_id")) {
         window.clearInterval(intervalID);
@@ -696,13 +661,10 @@ async function loadTemplate(data, isDefaultTemplate) {
           );
         }
 
-        //const zoomLevel = new ZoomLevel(mapa.getZoom());
-
         urlInteraction.zoom = mapa.getZoom();
         mapa.on("zoom", () => {
           if (Number.isInteger(mapa.getZoom())) {
             urlInteraction.zoom = mapa.getZoom();
-            //zoomLevel.zoom = mapa.getZoom();
             if (geoProcessingManager) {
               geoProcessingManager.svgZoomStyle(mapa.getZoom());
             }
@@ -721,37 +683,30 @@ async function loadTemplate(data, isDefaultTemplate) {
         }
         gestorMenu.loadInitialLayers(urlInteraction);
 
-        // Default values for showToolbar and showLayerMenu
         let showToolbar = true;
         let showLayerMenu = false;
 
-        // Check if app.onInit exists and assign values accordingly
         if (app?.onInit) {
           showToolbar = app.onInit.showToolbar ?? true;
           showLayerMenu = app.onInit.showLayerMenu ?? false;
         }
 
         if (!app.dependencies.toolbarToggler) {
-          // Initialize toolbar visibility toggler and create components
           const toolbarVisibilityToggler = new ToolbarVisibilityToggler();
           toolbarVisibilityToggler.createComponent(showToolbar);
           app.dependencies.toolbarToggler = true;
         }
 
-        //consultar si el navegador es mobile
         const isMobile = window.matchMedia(
           "only screen and (max-width: 760px)",
         ).matches;
 
-        // Show layer menu if showLayerMenu is true
-        // Mostrar u ocultar el menú de capas nativo instantáneamente
         if (showLayerMenu && !isMobile) {
           document.getElementById("sidebar").style.display = "block";
         } else {
           document.getElementById("sidebar").style.display = "none";
         }
 
-        // Abrir el panel de Facultades en el momento exacto en que carga la interfaz
         setTimeout(function() {
             if (!$("#facultades-panel").is(":visible")) {
                 $("#facultades-btn").click();
@@ -771,7 +726,6 @@ async function loadTemplate(data, isDefaultTemplate) {
   });
 
   setTimeout(function () {
-    //load loginatic
     if (loadLogin) {
       $("head").append(
         '<link rel="stylesheet" type="text/css" href="src/js/components/login/loginatic.css">',
@@ -799,10 +753,11 @@ async function loadTemplate(data, isDefaultTemplate) {
       );
     }
 
-    //load elevationProfile
+    // load elevationProfile with Highcharts and modules (incluyendo datagrouping requerido por windbarb)
     if (loadElevationProfile && !app.dependencies.highcharts) {
       $.getScript("https://code.highcharts.com/highcharts.js").done(() => {
         $.getScript("https://code.highcharts.com/highcharts-more.js");
+        $.getScript("https://code.highcharts.com/modules/datagrouping.js"); // <-- Solución al error de windbarb
         $.getScript("https://code.highcharts.com/modules/windbarb.js");
         $.getScript("https://code.highcharts.com/modules/funnel.js");
         $.getScript("https://code.highcharts.com/modules/exporting.js");
@@ -811,19 +766,16 @@ async function loadTemplate(data, isDefaultTemplate) {
       });
       app.dependencies.highcharts = true;
 
-      // TODO: replace script loads by ES modules architecture
       $.getScript("src/js/components/elevation-profile/elevation-profile.js");
     }
   }, 1500);
 }
 
 let conaeCheck = setInterval(() => {
-  // patch to force conae layers into menu
   let conaeLayers = gestorMenu.items.conae;
   if (conaeLayers) {
     if (Object.entries(gestorMenu.items.conae.itemsComposite).length === 12) {
       gestorMenu.printMenu();
-      //document.getElementById("temp-menu").remove();
       clearInterval(conaeCheck);
     }
   }
@@ -837,17 +789,10 @@ document.addEventListener("contextmenu", (e) => {
   ) {
     e.preventDefault();
   }
-  //ui_component.getContextMenu(e.target.classList);
 });
 
-/**
- * Renderizado de información académica para la nueva versión de Argenmap
- */
-
-// Variable global para almacenar las features del GeoJSON una vez cargadas
 let cacheFacultades = null;
 
-// 1. Vista por defecto del panel (Incluye el texto inicial y el buscador de facultades)
 function cargarVistaInicialFacultades() {
     const $contenedor = $("#facultades-contenido");
     if ($contenedor.length === 0) return;
@@ -858,18 +803,15 @@ function cargarVistaInicialFacultades() {
             Haz clic sobre cualquier marcador en el mapa o busca abajo la facultad.
         </div>
 
-        <!-- Buscador integrado en la vista inicial -->
         <div id="panel-busqueda-facultades" style="margin-top: 10px;">
             <input type="text" id="filtro-facultades" class="ag-input-text" placeholder="Escribí para buscar facultad..." style="width: 100%; margin-bottom: 8px;" />
             <ul id="lista-facultades" style="list-style: none; padding: 0; max-height: 250px; overflow-y: auto; margin: 0;"></ul>
         </div>
     `);
 
-    // Si ya teníamos los datos descargados, los renderizamos directo
     if (cacheFacultades) {
         renderizarListaFacultades(cacheFacultades);
     } else {
-        // Si no, los cargamos del archivo
         fetch("dist/layers/geojson/facultades.geojson")
             .then(response => {
                 if (!response.ok) throw new Error("No se pudo cargar el archivo geojson");
@@ -883,7 +825,6 @@ function cargarVistaInicialFacultades() {
     }
 }
 
-// Función auxiliar para poblar la lista y manejar los filtros y el zoom
 function renderizarListaFacultades(features) {
     const lista = document.getElementById("lista-facultades");
     const inputFiltro = document.getElementById("filtro-facultades");
@@ -912,9 +853,7 @@ function renderizarListaFacultades(features) {
             item.onmouseover = () => item.style.backgroundColor = "var(--menu-section-hover-color, #f4f4f4)";
             item.onmouseout = () => item.style.backgroundColor = "transparent";
 
-            // Acción al hacer clic en un elemento de la lista (Zoom + Sidebar)
             item.onclick = () => {
-                // Detectamos la instancia del mapa de manera segura en Argenmap
                 const mapaActual = window.map || window.mapa || (typeof map !== 'undefined' ? map : null);
                 
                 if (mapaActual) {
@@ -922,14 +861,13 @@ function renderizarListaFacultades(features) {
                         const coords = feature.geometry.coordinates;
                         const lat = parseFloat(coords[1]);
                         const lng = parseFloat(coords[0]);
-                        mapaActual.setView([lat, lng], 16); // Hace zoom a nivel 16
+                        mapaActual.setView([lat, lng], 16);
                     } else if (feature.geometry) {
                         const layer = L.geoJSON(feature);
                         mapaActual.fitBounds(layer.getBounds());
                     }
                 }
 
-                // Abrimos la ficha detallada de la facultad en el sidebar
                 if (typeof window.actualizarSidebarFacultad === "function") {
                     window.actualizarSidebarFacultad(p);
                 }
@@ -939,10 +877,8 @@ function renderizarListaFacultades(features) {
         });
     }
 
-    // Renderizado inicial completo
     poblarUL(features);
 
-    // Evento de filtrado en tiempo real
     inputFiltro.oninput = (e) => {
         const texto = e.target.value.toLowerCase();
         const filtradas = features.filter(f => {
@@ -955,8 +891,6 @@ function renderizarListaFacultades(features) {
     };
 }
 
-
-// 2. Función que se ejecuta al hacer clic en una Facultad en el mapa
 window.actualizarSidebarFacultad = function (p) {
     const $contenedor = $("#facultades-contenido");
     if ($contenedor.length === 0) return;
@@ -1035,14 +969,9 @@ window.actualizarSidebarFacultad = function (p) {
     }
 }
 
-
-// 3. Controladores de Eventos de la Interfaz
 $(document).ready(function () {
-    
-    // Precargamos la vista inicial y el buscador apenas arranca la aplicación
     setTimeout(cargarVistaInicialFacultades, 200);
 
-    // Al hacer clic en el botón de la graduada en la botonera
     $(document).on("click", "#facultades-btn", function () {
         setTimeout(function () {
             if ($("#facultades-panel").is(":visible") && $("#facultades-contenido").is(":empty")) {
@@ -1051,9 +980,7 @@ $(document).ready(function () {
         }, 50);
     });
 
-    // Evento para el botón "Volver" dentro de la ficha de la facultad
     $(document).on("click", "#btn-volver-facultades", function () {
         cargarVistaInicialFacultades();
     });
-
 });
