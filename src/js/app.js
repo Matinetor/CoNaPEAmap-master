@@ -14,13 +14,7 @@ const app = {
   dependencies: {},
   layerNameByDomId: {},
   templates: ["ign-geoportal-basic"],
-// Le pasamos un ítem base por defecto con una propiedad "capas" vacía para que no explote
-  items: [
-    {
-        capas: [],
-        nombre: "Inicio"
-    }
-  ],
+  items: [],
 
   init: async function (data) {
     Object.assign(app, data);
@@ -1025,60 +1019,12 @@ window.actualizarSidebarFacultad = function (p) {
             ` : ''}
         </div>
 
-<<<<<<< HEAD
-        <a href="https://wa.me/5491100000000?text=Hola, quiero consultar por la propiedad: ${p.titulo}" target="_blank" class="btn btn-success btn-block" style="font-weight: bold; font-size: 1.1rem; padding: 12px; background-color: #25D366; border-color: #25D366;">
-            <i class="fa-brands fa-whatsapp fa-xl" style="margin-right: 8px;"></i> Consultar Asesor
-        </a>
-
-        ${p.tipo === 'facultad' ? `
-        <div class="info-academica text-left mb-3" style="font-size: 0.9rem;">
-            
-            <p style="margin-bottom: 15px;">
-                <strong style="display: block; margin-bottom: 5px;">Sitio Web:</strong>
-                ${p.url_fac ? `
-                    <a href="${p.url_fac}" target="_blank" class="btn btn-primary btn-sm" style="font-weight: bold; background-color: #337ab7; border-color: #2e6da4; color: #fff;">
-                        <i class="fa-solid fa-globe"></i> Visitar Web Oficial
-                    </a>
-                ` : `<span class="text-muted">No disponible</span>`}
-            </p>
-
-            <!-- EL BOTÓN DEL PDF AHORA ESTÁ ACÁ, SEPARADO DE LA COMISIÓN -->
-            ${p.p_e ? `
-                <p style="margin-bottom: 20px;">
-                    <a href="${p.p_e}" target="_blank" class="btn btn-danger btn-sm" style="font-weight: bold; background-color: #d9534f; border-color: #d43f3a; color: #fff;">
-                        <i class="fa-solid fa-file-pdf"></i> Ver Plan de Estudios
-                    </a>
-                </p>
-            ` : ''}
-
-            <p style="margin-bottom: 8px;">
-                <strong>Comisión Estudiantil:</strong><br>
-                <span class="text-muted">${p.comision || 'Sin información registrada'}</span>
-            </p>
-        </div>
-
-        <div class="btn-group-vertical btn-block mt-3" style="gap: 8px;">
-            <!-- ACÁ SOLO QUEDA EL INSTAGRAM -->
-            ${p.url_com ? `
-                <a href="${p.url_com}" target="_blank" class="btn btn-danger btn-sm btn-block" style="font-weight: bold; background-color: #e1306c; border-color: #c13584;">
-                    <i class="fa-brands fa-instagram"></i> Instagram
-                </a>
-            ` : ''}
-        </div>
-
-=======
->>>>>>> parent of 8615999 (V0.1)
         <div class="mt-4 pt-3 border-top" style="margin-top: 25px;">
             <small class="text-muted d-block mb-2">Agrupación / Centro de Estudiantes</small>
             <img src="${ceaOption1}" 
                  onerror="this.onerror=null; this.src='${ceaOption2}'; this.onerror=function(){this.src='${ceaOption3}'; this.onerror=function(){this.src='${ceaOption4}'; this.onerror=function(){this.src='${ceaFallback}';};};};" 
                  style="max-width: 85px; height: auto;" class="center-block">
         </div>
-<<<<<<< HEAD
-        ` : ''}
-
-=======
->>>>>>> parent of 8615999 (V0.1)
     </div>
     `;
     
